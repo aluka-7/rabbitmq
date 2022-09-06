@@ -12,7 +12,7 @@ import (
 )
 
 /**
- * 基于RabbitMQ的ESB提供器，其初始化参数格式如下：
+ * 基于RabbitMQ的AMQ提供器，其初始化参数格式如下：
  * <pre>
  * {
  *  "brokerURL" : "amqp://guest:guest@localhost:5672/",  // RabbitMQ server的连接地址
@@ -49,10 +49,10 @@ type Client struct {
 func Engine(conf configuration.Configuration, systemId string) *Client {
 	fmt.Println("Loading FoChange RabbitMQ Engine ver:1.0.0")
 	var cfg map[string]string
-	if err := conf.Clazz("base", "esb", "", systemId, &cfg); err == nil {
+	if err := conf.Clazz("base", "amq", "", systemId, &cfg); err == nil {
 		return New(cfg["brokerURL"], cfg["username"], cfg["password"], cfg["vhost"])
 	} else {
-		panic("加载ESB实例出错")
+		panic("加载AMQ实例出错")
 	}
 }
 func New(brokerURL, username, password, vhost string) *Client {

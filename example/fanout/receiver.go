@@ -14,18 +14,18 @@ import (
 
 func main() {
 	conf := configuration.MockEngine(nil, backends.StoreConfig{Exp: map[string]string{
-		"/fc/base/esb/client": "{\"enabled\":true}",
-		"/fc/base/esb/9999":   "{\"username\":\"guest\",\"password\":\"guest\",\"brokerURL\":\"localhost:5672\"}",
+		"/system/base/amq/client": "{\"enabled\":true}",
+		"/system/base/amq/9999":   "{\"username\":\"guest\",\"password\":\"guest\",\"brokerURL\":\"localhost:5672\"}",
 	}})
 	client, _ := rabbitmq.Engine(conf, "9999").Open()
-	if consumer, err := client.Consumer("sys_esb"); err == nil {
+	if consumer, err := client.Consumer("sys_amq"); err == nil {
 		defer client.Close() // 关闭 client 会清理所有相关 producer & consumer
 		log.Info().Msg("fanout-msg receiver listening...")
 		// 生产者服务的 systemId
 
 		consumer.SetExchangeBinds([]*rabbitmq.ExchangeBinds{
 			{
-				Exch: rabbitmq.DefaultExchange("sys_esb_8888", amqp.ExchangeFanout, nil),
+				Exch: rabbitmq.DefaultExchange("sys_amq_8888", amqp.ExchangeFanout, nil),
 				Bindings: []*rabbitmq.Binding{
 					{
 						Queues: []*rabbitmq.Queue{
