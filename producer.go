@@ -10,13 +10,13 @@ import (
 	"github.com/streadway/amqp"
 )
 
-//基于RabbitMQ的生产者封装。
+// 基于RabbitMQ的生产者封装。
 type Producer struct {
 	// Producer的名字, "" is OK
 	name string
 	// MQ实例
 	client *Client
-	// channel pool, 重复使用
+	// Channel pool, 重复使用
 	chPool *sync.Pool
 	// publish数据的锁
 	publishMutex sync.RWMutex
@@ -94,9 +94,9 @@ func (p *Producer) Open() error {
 	}
 
 	// 创建并初始化channel
-	ch, err := p.client.channel()
+	ch, err := p.client.Channel()
 	if err != nil {
-		return fmt.Errorf("rabbit mq Create channel failed, %v", err)
+		return fmt.Errorf("rabbit mq Create Channel failed, %v", err)
 	}
 	if err = applyExchangeBinds(ch, p.exchangeBinds); err != nil {
 		ch.Close()
@@ -230,9 +230,9 @@ func (p *Producer) keepalive() {
 
 	case err := <-p.closeC:
 		if err == nil {
-			log.Err(err).Msgf("RabbitMq Producer(%s)'s channel was closed, but Error detail is nil", p.name)
+			log.Err(err).Msgf("RabbitMq Producer(%s)'s Channel was closed, but Error detail is nil", p.name)
 		} else {
-			log.Err(err).Msgf("RabbitMq Producer(%s)'s channel was closed, code:%d, reason:%s", p.name, err.Code, err.Reason)
+			log.Err(err).Msgf("RabbitMq Producer(%s)'s Channel was closed, code:%d, reason:%s", p.name, err.Code, err.Reason)
 		}
 
 		// channel被异常关闭了
@@ -244,17 +244,17 @@ func (p *Producer) keepalive() {
 		for i := 0; i < maxRetry; i++ {
 			time.Sleep(time.Second)
 			if p.client.State() != StateOpened {
-				fmt.Printf("Rabbit mq Producer(%s) try to recover channel for %d times, but mq's state != StateOpened\n", p.name, i+1)
+				fmt.Printf("Rabbit mq Producer(%s) try to recover Channel for %d times, but mq's state != StateOpened\n", p.name, i+1)
 				continue
 			}
 			if e := p.Open(); e != nil {
-				fmt.Printf("Rabbit mq Producer(%s) recover channel failed for %d times, Err:%v\n", p.name, i+1, e)
+				fmt.Printf("Rabbit mq Producer(%s) recover Channel failed for %d times, Err:%v\n", p.name, i+1, e)
 				continue
 			}
-			fmt.Printf("Rabbit mq Producer(%s) recover channel OK. Total try %d times\n", p.name, i+1)
+			fmt.Printf("Rabbit mq Producer(%s) recover Channel OK. Total try %d times\n", p.name, i+1)
 			return
 		}
-		log.Err(err).Msgf("Rabbit mq Producer(%s) try to recover channel over maxRetry(%d), so exit\n", p.name, maxRetry)
+		log.Err(err).Msgf("Rabbit mq Producer(%s) try to recover Channel over maxRetry(%d), so exit\n", p.name, maxRetry)
 	}
 }
 
@@ -267,7 +267,7 @@ func (p *Producer) listenConfirm() {
 
 func applyExchangeBinds(ch *amqp.Channel, exchangeBinds []*ExchangeBinds) (err error) {
 	if ch == nil {
-		return errors.New("rabbit mq Nil producer channel")
+		return errors.New("rabbit mq Nil producer Channel")
 	}
 	if len(exchangeBinds) <= 0 {
 		return errors.New("rabbit mq Empty exchangeBinds")

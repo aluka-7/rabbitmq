@@ -14,7 +14,7 @@ type Delivery struct {
 	amqp.Delivery
 }
 
-//基于RabbitMQ消息中间件的客户端实现。
+// 基于RabbitMQ消息中间件的客户端实现。
 type Consumer struct {
 	// Consumer的名字, "" is OK
 	name string
@@ -102,9 +102,9 @@ func (c *Consumer) Open() error {
 	}
 
 	// 初始化channel
-	ch, err := c.client.channel()
+	ch, err := c.client.Channel()
 	if err != nil {
-		return fmt.Errorf("rabbit mq Create channel failed, %v", err)
+		return fmt.Errorf("rabbit mq Create Channel failed, %v", err)
 	}
 
 	err = func(ch *amqp.Channel) error {
@@ -215,9 +215,9 @@ func (c *Consumer) keepalive() {
 
 	case err := <-c.closeC:
 		if err == nil {
-			log.Err(err).Msgf("RabbitMQ Consumer(%s)'s channel was closed, but Error detail is nil", c.name)
+			log.Err(err).Msgf("RabbitMQ Consumer(%s)'s Channel was closed, but Error detail is nil", c.name)
 		} else {
-			log.Err(err).Msgf("RabbitMQ Consumer(%s)'s channel was closed, code:%d, reason:%s", c.name, err.Code, err.Reason)
+			log.Err(err).Msgf("RabbitMQ Consumer(%s)'s Channel was closed, code:%d, reason:%s", c.name, err.Code, err.Reason)
 		}
 
 		// channel被异常关闭了
@@ -229,16 +229,16 @@ func (c *Consumer) keepalive() {
 		for i := 0; i < maxRetry; i++ {
 			time.Sleep(time.Second)
 			if c.client.State() != StateOpened {
-				fmt.Printf("Rabbit mq Consumer(%s) try to recover channel for %d times, but mq's state != StateOpened\n", c.name, i+1)
+				fmt.Printf("Rabbit mq Consumer(%s) try to recover Channel for %d times, but mq's state != StateOpened\n", c.name, i+1)
 				continue
 			}
 			if e := c.Open(); e != nil {
-				fmt.Printf("RabbitMQ Consumer(%s) recover channel failed for %d times, Err:%v\n", c.name, i+1, e)
+				fmt.Printf("RabbitMQ Consumer(%s) recover Channel failed for %d times, Err:%v\n", c.name, i+1, e)
 				continue
 			}
-			fmt.Printf("RabbitMQ Consumer(%s) recover channel OK. Total try %d times\n", c.name, i+1)
+			fmt.Printf("RabbitMQ Consumer(%s) recover Channel OK. Total try %d times\n", c.name, i+1)
 			return
 		}
-		log.Err(err).Msgf("RabbitMQ Consumer(%s) try to recover channel over maxRetry(%d), so exit\n", c.name, maxRetry)
+		log.Err(err).Msgf("RabbitMQ Consumer(%s) try to recover Channel over maxRetry(%d), so exit\n", c.name, maxRetry)
 	}
 }

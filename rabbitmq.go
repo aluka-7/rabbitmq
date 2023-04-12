@@ -47,7 +47,7 @@ type Client struct {
 }
 
 func Engine(conf configuration.Configuration, systemId string) *Client {
-	fmt.Println("Loading FoChange RabbitMQ Engine ver:1.0.0")
+	fmt.Println("Loading RabbitMQ Engine ver:1.0.0")
 	var cfg map[string]string
 	if err := conf.Clazz("base", "amq", "", systemId, &cfg); err == nil {
 		return New(cfg["brokerURL"], cfg["username"], cfg["password"], cfg["vhost"])
@@ -207,7 +207,7 @@ func (c *Client) keepalive() {
 		log.Err(err).Msgf("Try to reconnect to RabbitMQ failed over maxRetry(%d), so exit.\n", maxRetry)
 	}
 }
-func (c *Client) channel() (*amqp.Channel, error) {
+func (c *Client) Channel() (*amqp.Channel, error) {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
 	return c.conn.Channel()
